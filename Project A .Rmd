@@ -1,0 +1,392 @@
+---
+title: "Gun Deaths In the US: A Comparison Study between 2012 and 2019"
+author: "Ali Alzughaibi"
+date: "31-Jan-2021"
+output: html_notebook
+---
+
+#### *Description* 
+This report analyzes data from 2012 and 2019 on the number of gun deaths in the United States. It provides descriptive statistics and graphs to understand proportions and frequencies of gun deaths related to gender and racial groups in both years. First, I will report results from 2012. I will then report results from 2019. The report then compares results with gun deaths calculated in 2019. I will also examine the relationship between racial groups and gunshot deaths.
+
+*source of data: Gun Deaths In America By Ben Casselman, Matthew Conlen and Reuben Fischer-Baum https://fivethirtyeight.com/features/gun-deaths/*
+
+```{r echo=false}
+
+# Reading in the data from the full data csv. Then I need to exclude years 2013 and 2014.
+
+guns_data <- read.csv("full_data.csv", header = TRUE, sep = ",")
+
+guns_12 <- subset(guns_data, guns_data$year==2012)
+
+
+# I will need to change categorical variables to factors to analyze the data. We are asked to examine proportions of type of gun deaths (intent), proportions of race (race) and proportions of gender (sex).I will then start the analysis.
+
+guns_12$intent <- factor(guns_12$intent)
+
+guns_12$race <- factor(guns_12$race)
+
+guns_12$sex <- factor(guns_12$sex)
+
+```
+
+#### *Analysis*
+
+In this sample (2021), intent of gunshots/killing is divided into four categories: Accidental, Homicide, Suicide, and Undetermined. Figure 1. illustrates the total of deaths by type. Racial groups are divided into five groups: Asian, Native American, Black, Hispanic, and White. Figure 2. illustrates the number of deaths by gender. Then gender proportions are reported in Figure 3.
+
+```{r echo=FALSE}
+
+# We need to calculate frequencies and proportions for each category. For clarification, objects for 2012 end with 12.
+
+intent_counts_12 <- table(guns_12$intent)
+intent_props_12 <- prop.table(intent_counts_12)
+
+race_counts_12 <- table(guns_12$race)
+race_props_12 <- prop.table(race_counts_12)
+
+gender_counts_12 <- table(guns_12$sex)
+gender_props_12 <- prop.table(gender_counts_12)
+
+```
+
+*Figure 1. Bar plots with showing the proportion of gunshot deaths by type*
+
+```{r echo=FALSE}
+
+# This plot shows the proportions of gunshot deaths by type in 2012. 
+
+
+barplot(intent_props_12, main = "Figure 1. Percentage of Gun Death Types in 2012",
+        xlab = "Type of Death",
+        ylab = "Percent",
+        col = c("yellow", "red", "blue", "grey"),
+        ylim = c(0,0.75))
+box(which = "plot", lty = "solid")
+
+```
+From Figure 1., 20666 gun deaths comprises 62% of this sample committed suicide by shooting themselves while 12039 which is about 36% of gunshots in the sample were homicide. Accidental and undetermined gunshot cases are very low compared to Suicide and Homicide cases. These percentages are reported in Table 1.
+
+```{r echo=FALSE}
+
+# I then need to know the proportions of each by counting numbers in each type. Proportions are rounded for reporting.
+
+intent_prop_round_12 <- round(intent_props_12, 2)
+
+gender_prop_round_12 <- round(gender_props_12, 2)
+
+race_prop_round_12 <- round(race_props_12, 2)
+
+# We need to combine counts and proportions for death types
+
+death_type_12 <- cbind(intent_counts_12, intent_prop_round_12)
+
+# Let's change the name of columns to present numbers and proportions.
+
+colnames(death_type_12) <- c("Numbers", "Proportion")
+
+print(death_type_12)
+
+```
+Males outnumber females in gunshot deaths in this data. 86% of gunshot deaths were males while 14% were females. This relationship is illustrated in Figure 2. Descriptive statistics for this relationship is illustrated in table 2. 
+```{r}
+
+# Now we do the same with gender. We have already created objects in the code above this.
+
+gender_12 <- cbind(gender_counts_12, gender_prop_round_12)
+
+# let's change column names for the table we just created.
+
+colnames(gender_12) <- c("Numbers", "Proportion")
+
+# rows represent M and F so we need to change these to male and female
+
+row.names(gender_12) <- c("Female", "Male")
+
+print(gender_12)
+
+# barplot representing proportions of genders in 2012 sample.
+
+barplot(gender_prop_round_12, main = "Figure 2. Percentage of Gender Types in 2012",
+        xlab = "Gender",
+        ylab = "Percent",
+        col = c("red", "blue"),
+        ylim = c(0,1))
+box(which = "plot", lty = "solid")
+
+```
+We also want to look at the number and proportions of racial groups in this data. In the sample, the largest racial group is White, consisting of 21793 deaths which is about 65% in our sample, followed by Black by 7946 and 23% in the sample. Native American/Alaskan and Asian/Pacific Islander comprise about 1% of deaths and Hispanic are less than 1%.   
+
+```{r echo=FALSE}
+
+race_12 <- cbind(race_counts_12, race_prop_round_12)
+
+# let's change column names
+
+colnames(race_12) <- c("Numbers", "Proportions")
+
+print(race_12)
+
+barplot(race_prop_round_12, main = "Figure 3. Percentage of Racial Groups in 2012",
+        xlab = "Race",
+        ylab = "Percent",
+        col = c("yellow", "red", "blue", "grey"),
+        ylim = c(0,1))
+box(which = "plot", lty = "solid")
+
+```
+There also seems to be a relationship between racial groups and types of deaths in the sample. Both Homicide and Suicide types of gunshot are the highest reported crimes in this data. 84% of Blacks have committed homicide while only 14% have committed suicide. However, Whites show higher percentage in suicide; about 82%, while about 14% committed suicide. For the Hispanic groups, 64% died in homicide while 33% committed suicide. Even though Asian/Pacific Islanders and Native American/Alaskan groups are smaller in this sample, about 60% of Native American/Native Alaskan and 53% of Asian/Pacific Islanders have commited suicide and about 45% of Asian/Pacific Islanders and 34% of Native American/Alaskans have died in homicide crimes. This relationship is illustrated in Figure 4.  
+
+```{r echo=FALSE}
+
+# the relationship between intent and race. 
+
+intent_race_12 <- table(guns_12$intent, guns_12$race)
+
+intent_race_prop_12 <- 100*prop.table(intent_race_12, 2)
+
+barplot(intent_race_prop_12, main = "Figure 4. Gunshot Deaths by Race in 2012",
+        xlab = "Race",
+        ylab = "Percentage",
+        ylim = c(0,100),
+        cex.names = .5,
+        col = c("green", "red", "blue", "yellow"),
+        legend = c("Accedintal", "Homicide", "Suicide", "Undetermined"),
+        args.legend = list(title = "Type of Death", cex = .65))
+
+# let's get a descriptive table for intent by race in 2021.
+
+print(intent_race_prop_12)
+```
+
+```{r echo=FALSE}
+
+# Reading in the data for the year 2019.
+
+guns_19 <- read.csv("full_data_19.csv", header = TRUE, sep = ",")
+
+
+# I will need to change categorical variables to factors to analyze the data. We are asked to examine proportions of type of gun deaths (intent), proportions of race (race) and proportions of gender (sex).I will then start the analysis.
+
+guns_19$intent <- factor(guns_19$intent)
+
+guns_19$race <- factor(guns_19$race)
+
+guns_19$sex <- factor(guns_19$sex)
+
+# to make comparison between 2012 and 2019 easier, I will combine both data sets in guns_12_19. 
+
+guns_12_19 <- rbind(guns_12, guns_19)
+
+```
+
+The analysis above looked at gunshot deaths in 2012. I will now examine counts and proportions of the same variables, types of gunshots, gender, and racial groups. Suicide cases outnumber homicide cases in 2019; 23941 cases (about 60%) are suicide while 14909 (about 37%) are homicide. Undetermined and accidental gunshots are less than 1% in this sample. Figure 5. illustrates this relationship.
+
+```{r include=FALSE}
+
+# We need to calculate frequencies and proportions for each category.
+
+intent_counts_19 <- table(guns_19$intent)
+intent_props_19 <- prop.table(intent_counts_19)
+
+race_counts_19 <- table(guns_19$race)
+race_props_19 <- prop.table(race_counts_19)
+
+gender_counts_19 <- table(guns_19$sex)
+gender_props_19 <- prop.table(gender_counts_19)
+
+print(intent_counts_19)
+print(intent_props_19)
+
+
+```
+*Figure 5. The percentages of gunshot death types in 2019*
+
+```{r echo=FALSE}
+
+# This plot shows the proportions of gunshot deaths by type in 2019. 
+
+
+barplot(intent_props_19, main = "Figure 5. Percentage of Gun Death Types in 2019",
+        xlab = "Type of Death",
+        ylab = "Percent",
+        col = c("yellow", "red", "blue", "grey"),
+        ylim = c(0,0.75))
+box(which = "plot", lty = "solid")
+
+```
+
+
+
+```{r echo=FALSE}
+
+# I then need to know the proportions of each by counting numbers in each type.
+
+intent_prop_round_19 <- round(intent_props_19, 2)
+
+race_prop_round_19 <- round(race_props_19, 2)
+
+gender_prop_round_19 <- round(gender_props_19, 2)
+
+# We need to combine counts and proportions for death types
+
+death_type_19 <- cbind(intent_counts_19, intent_prop_round_19)
+death_type_19
+# Let's change the name of columns to present numbers and proportions.
+
+colnames(death_type_19) <- c("Numbers", "Proportion")
+
+print(death_type_19)
+
+```
+In the 2019 sample, about 86% are males (34041 cases) while only 14% (about 5666) cases are females. Figure 6. illustrates this relationship.
+```{r}
+
+# Now we do the same with race and gender. We have already created objects for both categories.
+
+gender_19 <- cbind(gender_counts_19, gender_prop_round_19)
+
+# let's change column names for the table we just created.
+
+colnames(gender_19) <- c("Numbers", "Proportion")
+
+# rows represent M and F so we need to change these to male and female
+
+row.names(gender_19) <- c("Female", "Male")
+
+print(gender_19)
+
+# barplot representing proportions of genders in 2012 sample.
+
+barplot(gender_prop_round_19, main = "Figure 6. Percentage of Gender Types in 2019",
+        xlab = "Gender",
+        ylab = "Percent",
+        col = c("pink", "blue"),
+        ylim = c(0,1))
+box(which = "plot", lty = "solid")
+
+```
+
+We also want to look at the number and proportions of racial groups in 2019. The largest racial group is White consisting of 24212 deaths which is about 61% in our sample, followed by Black 10410 and 26% in the sample. Deaths of Hispanic group comoprise 4058 (about 10%) and Asian/Pacific Islander and Native American/Native Alaskan each are less than 3%. Figure 7. illustrates this relationship.   
+
+```{r echo=FALSE}
+
+race_19 <- cbind(race_counts_19, race_prop_round_19)
+
+# let's change column names
+
+colnames(race_19) <- c("Numbers", "Proportions")
+
+print(race_19)
+
+barplot(race_prop_round_19, main = "Figure 7. Percentage of Racial Groups in 2019",
+        xlab = "Race",
+        ylab = "Percent",
+        col = c("yellow", "red", "blue", "grey"),
+        ylim = c(0,1))
+box(which = "plot", lty = "solid")
+
+```
+There also seems to be a relationship between racial groups and types of deaths in the sample. The largest two death categories are suicide and homicide. 83% of the White racial group have committed suicide while only 15% of the Black racial group committed suicide. On the other hand, 82% of the Black racial group died because of homicide while only 14% of the White group died of homicide. The opposite is true for the Hispanic group. 60% have died of homicide while about 38% died of suicide. While both Asian/Pacific Islanders and Native American/Alaskan groups are substantially smaller, about 60% of Asian/Pacific Islander group have died because of suicide while about 39% died of homicide. For the Native American/Native Alaskan group, however, about 50% died because of homicide and about 47% died because of suicide. Accidental deaths range between 0-1.8% and 0-1.13% died of undetermined causes across racial groups. Figure 8. illustrates this relationship. 
+
+```{r echo=FALSE}
+
+# the relationship between intent and race? 
+
+intent_race_19 <- table(guns_19$intent, guns_19$race)
+
+intent_race_prop_19 <- 100*prop.table(intent_race_19, 2)
+
+print(intent_race_prop_19)
+
+barplot(intent_race_prop_19, main = "Figure 8. Gunshot Deaths by Race in 2019",
+        beside = FALSE,
+        xlab = "Racial Groups",
+        ylab = "Percentage",
+        ylim = c(0,100),
+        cex.names = .6,
+        col = c("green", "red", "blue", "yellow"),
+        legend = c("Accedintal", "Homicide", "Suicide", "Undetermined"),
+        args.legend = list(title = "Type of Death", cex = .65))
+        box(which = "plot", lty = "solid")
+
+```
+Numbers and proportions of deaths in 2012 and 2019 are illustrated in Table 3. Reported death cases are higher by 6144 cases; 33562 cases reported in 2012 while the number is 39707 in 2019. Suicide reported cases are 2% less in 2019 while homicide cases are higher by 2%. Accidental cases are about 1% higher in 2012 while there is no difference in the percentage of undetermined cases.
+
+*Table 3. Numbers and percentages of types of death in 2012 and 2019.* 
+
+```{r echo=FALSE}
+
+# here is table () illustrating the difference between numbers and percentages in intentions in 2012 and 2019
+
+death_type <- cbind(death_type_12 , death_type_19)
+
+colnames(death_type) <- c("# in 2012", "% in 2012", "# in 2019", "% in 2019")
+
+
+print(death_type)
+
+```
+Table 4. illustrates the difference between Male and female deaths in 2012 and 2019. 2019 are higher by 5203 cases while female deaths are higher by 941 cases. However, the percentage of males and females in both 2012 and 2019 are about similar (85% male, 14% female). 
+
+*Table 4. Numbers and percentages of deaths by gender in 2012 and 2019.*
+
+```{r echo=FALSE}
+
+
+# gender differences 
+
+male_diff <- 34041-28838
+ 
+female_diff <- 5666-4725
+
+# object gender_death illustrating the different numbers and percentages in 2012 and 2019.
+
+gender_death <- cbind(gender_counts_12, gender_prop_round_12, gender_counts_19, gender_prop_round_19)
+
+# changing column and row names in gender_death to print nicely
+
+colnames(gender_death) <- c("# in 2012", "% in 2012", "# in 2019", "% in 2019")
+rownames(gender_death) <- c("Female", "Male")
+
+print(gender_death)
+
+```
+We can look at the difference between racial groups in 2012 and 2019 as well. The pattern of the distribution is about similar in 2012 and 2019. Figure 9. and Table 5? show the difference in proportions in 2012 and 2019. The White group were bigger in proportion by about 3%, although there was an increase by about 3000 cases in the White group in 2019. In contrast, the Black group were lower in proportion in 2012 by about 3%, while for the Hispanic group, their proportion increased by 1% in 2019. The Asian Islanders and the Native Americans, on the other hand, increased in proportion by less than 1% in 2019.           
+*Table 5. The relationship between race and number of deaths in 2012 and 2019.*
+```{r echo=FALSE}
+
+# I'm going to create race_year which contains different numbers and percentages of racial groups in 2012 and 2019. 
+
+
+race_year <- table(guns_12_19$race, guns_12_19$year)
+
+race_year_props <- 100*prop.table(race_year, 2)
+
+race_year_table <- cbind(race_year, race_year_props)
+colnames(race_year_table) <- c("# in 2012", "# in 2019", "% in 2012", "% in 2019")
+print(race_year_table) 
+
+```
+
+*Figure 9. The proportions of deaths by race in 2012 and 2019.*
+```{r echo=FALSE}
+# let's change column names to match tables above
+
+
+
+barplot(race_year_props, main= "Figure 9. Proportions of Deaths by Race in 2012 and 2019",
+        ylim = c(0,80), xlab = "Year", ylab = "Percent",
+        col = c("green", "red", "blue", "yellow", "grey"),
+          beside = TRUE,legend= c("Asian", "Black", "Hispanic", "Native American", "White"),
+        args.legend = list(title = "Type of Death", cex = .8, x= "topleft"))
+        box(which = "plot", lty = "solid")
+
+```
+
+
+
+#### *Conclusion*
+
+This report examined the number of gunshot deaths across type, gender, and racial groups in 2012 and 2019 in the United States and the difference in counts and proportions across the two years for these variables. Suicide and Homicide are both the highest reported gunshot deaths in both years, with the White group being the largest in proportions in both years, followed by the Black group. (21793 in 2012 and 24212 cases in 2019). Although there were more reported cases in 2019, the White group was less by 3% (64% in 2012 and 60% in 2012) while reported gunshot deaths increased by 3% for the Black group (about 7946 cases in 2019 and 10410 cases in 2019). Reported cases from the Hispanic, Asian Pacific, and Native American/Alaskan groups were substantially lower in both 2012 and 2019. The Hispanic group comprised 9% of the 2012 reported sample (about 3061 cases) with 1% increase in 2019 sample (about 4058 cases). The Asian Pacific Islanders comprised about 1% of the sample in 2012 (about 453 cases) with less than 1% increase in 2019 (about 641 cases). The least number of reported cases came from the Native American group, consisting of less than 1% in both years but with a slight increase in cases overall (310 in 2012 and 386 in 2019). Undetermined and accidental causes of gunshot deaths were the least reported in both 2012 and 2019.
+
+As far as the relationship between intentions/types of death and race, there is about a similar pattern in 2012 and 2019 distribution. We notice , taking into consideration the different proportion of the different racial groups in both 2012 and 2019, that suicide using guns was the highest reported cases among the White group (82% in 2012 and 83% in 2019). The Native American group followed (60% in 2012) but decreased in 2019 (47%). The Asian Pacific Islander group followed in suicide cases (59% in 2019) but lower in proportion in 2012 (53%) . Homicide was the highest reported cases in the Black group: about 83% in the White group in both years, 64% in the Hispanic group in 2012 and 59% in 2019, 45% in the Asian Pacific Islander group and lower in 2019 (38%), 33% in the Native American/Alaskan group in 2012 while half (50%) of this reported population died of homicide in 2019. Only about 14% of the white group died of homicide in cases reported from both years. Accidental gunshot deaths were reported highest in the Native American/Alaskan group (about 2.5% in 2012 and 1.8% in 2019) while in other groups the proportion was less than 2%. Finally, reported cases from the Native American/Alaskan who died of gunshots of undetermined causes were the highest (3%) while the percentage is less than 1% in other groups.
+
